@@ -20,10 +20,17 @@ const resolvers = {
     getProducts: async () => {
       try {
         const products = await Product.find({});
-        return products
+        return products;
       } catch (error) {
         console.log(error);
       }
+    },
+    getProduct: async (_, { id }) => {
+      const product = await Product.findById(id);
+      if (!product) {
+        throw new Error("The product doesnt exist");
+      }
+      return product;
     },
   },
   Mutation: {
@@ -76,6 +83,28 @@ const resolvers = {
       } catch (error) {
         console.log("Occurred an error to save the product.", error);
       }
+    },
+    updateProduct: async (_, { id, input }) => {
+      let product = await Product.findById(id);
+      if (!product) {
+        throw new Error("The product doesnt exist");
+      }
+      product = await Product.findOneAndUpdate(
+        {
+          _id: id,
+        },
+        input,
+        { new: true }
+      );
+      return product;
+    },
+    deleteProduct: async (_, { id }) => {
+      const product = await Product.findById(id);
+      if (!product) {
+        throw new Error("The product doesnt exist");
+      }
+      await Product.findOneAndDelete({ _id: id });
+      return "The product has been deleted"
     },
   },
 };
